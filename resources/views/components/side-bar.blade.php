@@ -61,8 +61,10 @@
     <div class="flex min-h-0 flex-1 flex-col bg-gray-800">
 
         <div class="flex flex-shrink-0 items-center px-4 py-4">
-            <img class="h-168 w-auto -ml-8 -mb-2" src="{{ Vite::asset("resources/assets/logo.svg") }}" alt="Your Company">
+            <img class=" max-w-[1080px] w-96 size-32 -ml-24 -mb-14" src="{{ Vite::asset("resources/assets/logo.svg") }}" alt="Your Company">
         </div>
+
+        <hr class="my-12 h-px border-t-0 bg-transparent bg-gradient-to-r from-transparent via-neutral-200 to-transparent opacity-35 dark:via-neutral-100" />
 
         <div class="flex flex-1 flex-col overflow-y-auto">
             <x-side-bar-items />
