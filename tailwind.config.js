@@ -3,6 +3,7 @@ import forms from '@tailwindcss/forms';
 import filters from 'tailwindcss-filters';
 
 
+
 /** @type {import('tailwindcss').Config} */
 export default {
     content: [
@@ -14,7 +15,8 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                sans: ['Figtree',...defaultTheme.fontFamily.sans],
+
             },
             backdropFilter: {
                 'none': 'none',
