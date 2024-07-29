@@ -1,5 +1,7 @@
 import defaultTheme from 'tailwindcss/defaultTheme';
 import forms from '@tailwindcss/forms';
+import filters from 'tailwindcss-filters';
+
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -14,8 +16,22 @@ export default {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
+            backdropFilter: {
+                'none': 'none',
+                'blur-saturate': 'blur(16px) saturate(180%)',
+            },
+            dropShadow: {
+                'custom': '2px 2px 4px rgba(0, 0, 0, 0.5)',
+            }
         },
     },
 
-    plugins: [forms],
+    variants: {
+        backdropFilter: ['responsive'],
+    },
+
+    plugins: [
+        forms,
+        filters,
+    ],
 };
