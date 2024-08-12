@@ -16,15 +16,16 @@
 
     @stack('customer-scripts')
 </head>
-<body class="min-h-screen">
+<body class="min-h-screen dark:bg-gradient-to-r from-gray-900 to-gray-600 from-gray-100 to-gray-300
+ ">
 <div x-data="{ menuVisibility: false }">
     <x-side-bar></x-side-bar>
 
     <div class="flex flex-col md:pl-64">
         <x-navigation/>
 
-        <main class="flex-1">
-            <div class="py-6">
+        <main class="flex-1 ">
+            <div class="py-6 ">
                 {{ $slot }}
             </div>
         </main>
@@ -34,3 +35,5 @@
 @livewireScripts
 </body>
 </html>
+
+

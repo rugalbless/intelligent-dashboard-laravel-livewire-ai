@@ -35,5 +35,6 @@ export default {
     plugins: [
         forms,
         filters,
+        require('tailwind-scrollbar'),
     ],
 };
