@@ -8,6 +8,7 @@ use OpenAI\Laravel\Facades\OpenAI;
 
 class Dashboard extends Component
 {
+
     public $config;
     public string $question;
     public array $dataset;
@@ -21,8 +22,7 @@ class Dashboard extends Component
         'question' => 'required|min:10'
     ];
 
-    public function generateReport()
-    {
+    public function generateReport() {
         $this->validate();
 
         $fields = implode(',', SalesCommission::getColumns());
@@ -30,25 +30,34 @@ class Dashboard extends Component
         $response = OpenAI::chat()->create([
             'model' => 'gpt-3.5-turbo',
             'messages' => [
-                [
-                    'role' => 'system',
-                    'content' => 'Você é um assistente que ajuda a gerar configurações JSON para o Vega-lite v5.',
-                ],
-                [
-                    'role' => 'user',
-                    'content' => "Considerando a lista de campos ($fields), gere uma configuração JSON do Vega-lite v5 (sem campo de dados e com descrição) que atenda o seguinte pedido: {$this->question}. Resposta:",
-                ],
+                ['role' => 'system', 'content' => "Você é um assistente que gera configurações JSON do Vega-lite."],
+                ['role' => 'user', 'content' => "Considerando a lista de campos ($fields), gere uma configuração JSON do Vega-lite v5 (sem campo de dados e com descrição) que atenda o seguinte pedido: {$this->question}. Resposta apenas em JSON."],
             ],
             'max_tokens' => 1500,
         ]);
 
-        $this->config = $response->choices[0]->message->content;
+        $jsonContent = $response->choices[0]->message->content;
 
-        $this->config = str_replace("\n", "", $this->config);
-        $this->config = json_decode($this->config, true);
+        $jsonContent = trim($jsonContent);
+
+        $jsonStart = strpos($jsonContent, '{');
+        $jsonEnd = strrpos($jsonContent, '}');
+
+        if ($jsonStart !== false && $jsonEnd !== false) {
+            $jsonContent = substr($jsonContent, $jsonStart, $jsonEnd - $jsonStart + 1);
+        } else {
+            throw new \Exception("JSON inválido retornado.");
+        }
+
+        $this->config = json_decode($jsonContent, true);
+
+        if ($this->config === null) {
+            throw new \Exception("Erro ao decodificar o JSON: " . json_last_error_msg());
+        }
 
         $this->dataset = ["values" => SalesCommission::inRandomOrder()->limit(100)->get()->toArray()];
 
         return $this->config;
     }
+
 }
