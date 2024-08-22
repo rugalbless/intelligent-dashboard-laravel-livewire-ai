@@ -57,7 +57,7 @@
     </div>
 </div>
 
-<div class="hidden md:fixed md:inset-y-0 md:flex md:w-64 md:flex-col ">
+<div class="hidden md:fixed md:inset-y-0 md:flex md:w-64 md:flex-col border-r border-gray-600">
     <div class="flex min-h-0 flex-1 flex-col bg-gray-800 dark:bg-gray-800">
 
         <div class="flex flex-shrink-0 items-center px-4 py-4 ">
