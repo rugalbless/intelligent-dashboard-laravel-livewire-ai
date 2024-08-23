@@ -1,66 +1,121 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Intelligent Dashboard
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+This is a Laravel application designed to create custom data visualizations using the GPT-3.5 Turbo model from OpenAI and Vega-Lite. The user can input a request in natural language, and the system will generate a corresponding JSON configuration for Vega-Lite, which will then produce the visual chart.
 
-## About Laravel
+## Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Laravel & Livewire**: Built using Laravel and Livewire for a seamless and dynamic user experience.
+- **OpenAI Integration**: Uses the GPT-3.5 Turbo model to generate JSON configurations for Vega-Lite based on user input.
+- **Vega-Lite Visualizations**: Transforms the JSON configurations into visual charts using Vega-Lite.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## How it Works
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+1. The user enters a natural language question or request for a chart in the chat interface.
+2. The application sends this input to the GPT-3.5 Turbo model via OpenAI's API.
+3. The model returns a JSON configuration for Vega-Lite, which is then used to render the chart on the dashboard.
+___________________________________________________________________________________________________________________________
+```php
+namespace App\Livewire;
 
-## Learning Laravel
+use App\Models\SalesCommission;
+use Livewire\Component;
+use OpenAI\Laravel\Facades\OpenAI;
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+class Dashboard extends Component
+{
+    public $config;
+    public string $question;
+    public array $dataset;
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+    public function render()
+    {
+        return view('livewire.dashboard');
+    }
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+    protected $rules = [
+        'question' => 'required|min:10'
+    ];
 
-## Laravel Sponsors
+    public function generateReport() {
+        $this->validate();
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+        $fields = implode(',', SalesCommission::getColumns());
 
-### Premium Partners
+        $response = OpenAI::chat()->create([
+            'model' => 'gpt-3.5-turbo',
+            'messages' => [
+                ['role' => 'system', 'content' => "You are an assistant that generates JSON configurations for Vega-lite."],
+                ['role' => 'user', 'content' => "Considering the list of fields ($fields), generate a JSON configuration for Vega-lite v5 (without data field and with description) that meets the following request: {$this->question}. Response only in JSON."],
+            ],
+            'max_tokens' => 1500,
+        ]);
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+        $jsonContent = $response->choices[0]->message->content;
 
-## Contributing
+        $jsonContent = trim($jsonContent);
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+        $jsonStart = strpos($jsonContent, '{');
+        $jsonEnd = strrpos($jsonContent, '}');
 
-## Code of Conduct
+        if ($jsonStart !== false && $jsonEnd !== false) {
+            $jsonContent = substr($jsonContent, $jsonStart, $jsonEnd - $jsonStart + 1);
+        } else {
+            throw new \Exception("Invalid JSON returned.");
+        }
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+        $this->config = json_decode($jsonContent, true);
 
-## Security Vulnerabilities
+        if ($this->config === null) {
+            throw new \Exception("Error decoding JSON: " . json_last_error_msg());
+        }
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+        $this->dataset = ["values" => SalesCommission::inRandomOrder()->limit(100)->get()->toArray()];
 
-## License
+        return $this->config;
+    }
+}
+```
+## Vega-Lite
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Vega-Lite is a high-level grammar of interactive graphics. It provides a concise JSON syntax for rapidly generating visualizations to support analysis.
+
+Learn more about Vega-Lite on their [official site](https://vega.github.io/vega-lite/).
+
+## Example Results
+
+### Sales by State
+
+The following bar chart was generated with the input: **"Sales by state"**.
+
+![Sales by State](https://github.com/user-attachments/assets/31030243-1af3-402c-9a43-cf3814f37a01)
+
+
+### Pie Plot of the Sales by State
+
+Here is an example of a pie chart generated with the input: **"Pie Plot of the sales by state"**.
+
+![Pie Plot of the Sales by State](https://github.com/user-attachments/assets/3a63224b-8025-4ba2-bbc9-c4232ece3da7)
+
+Explore more ways to request charts by visiting the [Vega-Lite documentation](https://vega.github.io/vega-lite/docs/).
+
+## Environment Setup
+
+This application was set up using Docker and Laravel Sail. Here are the key environment variables configured for this application:
+
+```dotenv
+APP_NAME=Laravel
+APP_ENV=local
+APP_KEY=GenerateYourKeyAplication
+APP_DEBUG=true
+APP_TIMEZONE=UTC
+APP_URL=http://localhost
+
+DB_CONNECTION=pgsql
+DB_HOST=pgsql
+DB_PORT=5432
+DB_DATABASE=laradash
+DB_USERNAME=sail
+DB_PASSWORD=password
+
+OPENAI_API_KEY=YourAPiKey
+``
