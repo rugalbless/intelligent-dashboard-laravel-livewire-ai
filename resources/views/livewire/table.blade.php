@@ -1,4 +1,4 @@
-<div>
+<div class=" font-instrument-sans">
     <div class="overflow-x-auto dark:border-solid border border-slate-500 border-solid border-2 border-slate-400 rounded-md ">
         <table class="divide-y divide-gray-300 w-full">
             <thead class="bg-gray-50 dark:bg-gray-800">
@@ -15,7 +15,7 @@
                 @endif
 
                 @if($delete)
-                    <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+                    <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6 ">
                         <span class="sr-only">Delete</span>
                     </th>
                 @endif
@@ -31,22 +31,22 @@
                     @endforeach
 
                     @if($edit)
-                        <td class="whitespace-nowrap px-3 py-4 text-sm font-extrabold text-yellow-500 dark:text-yellow-500">
-                            <a href="{{ route($edit, $item->id) }}" class="text-yellow-500 hover:text-yellow-600 dark:text-yellow-300 dark:hover:text-gray-400">{{ __('Edit') }}</a>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm font-extrabold hover:bg-yellow-400/80 text-yellow-300 hover:text-white">
+                            <a href="{{ route($edit, $item->id) }}">{{ __('Edit') }}</a>
                         </td>
                     @endif
 
-                        @if($delete)
-                            <td class="whitespace-nowrap px-3 py-4 text-sm font-extrabold text-red-500 cursor-pointer hover:bg-red-400/75 hover:text-white dark:text-red-400">
-                                <form action="{{ route($delete, $item->id) }}" method="POST" onsubmit="return confirm('{{ __('Are you sure you want to delete this item?') }}');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-red-500 hover:text-white">
-                                        {{ __('Delete') }}
-                                    </button>
-                                </form>
-                            </td>
-                        @endif
+                    @if($delete)
+                        <td class="whitespace-nowrap px-3 py-4 text-sm font-extrabold text-red-500 cursor-pointer hover:bg-red-400/75 hover:text-white dark:text-red-400">
+                            <form action="{{ route($delete, $item->id) }}" method="POST" onsubmit="return confirm('{{ __('Are you sure you want to delete this item?') }}');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" >
+                                    {{ __('Delete') }}
+                                </button>
+                            </form>
+                        </td>
+                    @endif
                 </tr>
             @endforeach
             </tbody>

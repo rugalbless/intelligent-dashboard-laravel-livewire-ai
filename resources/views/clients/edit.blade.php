@@ -5,7 +5,7 @@
         </h2>
     </x-slot>
     <div class="py-12">
-        <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <div class="mx-auto max-w-7xl sm:px-6 lg:px-8 instrument-sans-custom ">
             <form method="POST" action="{{ route('clients.update', $client->id) }}">
                 @csrf
                 @method('PUT')
@@ -33,10 +33,16 @@
                     <x-input-error :messages="$errors->get('address')" class="mt-2" />
                 </div>
 
-                <div class="flex items-center justify-end mt-4">
-                    <x-primary-button class="ml-4">
+                <div class="flex items-center justify-center mt-4">
+
+                    <x-exclude-button class="w-64 flex items-center justify-center space-x-2">
+                        {{__('Back')}}
+                    </x-exclude-button>
+
+                    <x-primary-button class="w-64 ml-4">
                         {{ __('Save') }}
                     </x-primary-button>
+
                 </div>
             </form>
 
