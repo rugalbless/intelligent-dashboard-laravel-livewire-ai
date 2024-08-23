@@ -36,13 +36,17 @@
                         </td>
                     @endif
 
-                    @if($delete)
-                        <td class="whitespace-nowrap px-3 py-4 text-sm font-extrabold text-red-500 dark:text-red-400">
-
-                            {{ __('Delete') }}
-
-                        </td>
-                    @endif
+                        @if($delete)
+                            <td class="whitespace-nowrap px-3 py-4 text-sm font-extrabold text-red-500 cursor-pointer hover:bg-red-400/75 hover:text-white dark:text-red-400">
+                                <form action="{{ route($delete, $item->id) }}" method="POST" onsubmit="return confirm('{{ __('Are you sure you want to delete this item?') }}');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="text-red-500 hover:text-white">
+                                        {{ __('Delete') }}
+                                    </button>
+                                </form>
+                            </td>
+                        @endif
                 </tr>
             @endforeach
             </tbody>
