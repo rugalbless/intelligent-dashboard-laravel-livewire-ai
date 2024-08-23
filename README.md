@@ -118,4 +118,7 @@ DB_USERNAME=sail
 DB_PASSWORD=password
 
 OPENAI_API_KEY=YourAPiKey
-``
+```
+## Multi-Tenancy Version
+
+I am currently developing a multi-tenancy version of this application. You can find the repository for this version [here](https://github.com/rugalbless/dash-laravel-ai-MT-).
