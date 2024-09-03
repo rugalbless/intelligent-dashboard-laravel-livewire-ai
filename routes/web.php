@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ChartController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SaleController;
@@ -7,6 +8,17 @@ use App\Livewire\Dashboard;
 use App\Models\SalesCommission;
 use Illuminate\Support\Facades\Route;
 use OpenAI\Laravel\Facades\OpenAI;
+
+
+
+
+Route::get('/chart', function () {
+    return view('chart');
+});
+
+Route::get('/api/chart-data', [ChartController::class, 'getData']);
+
+
 
 Route::get('/', function () {
     return view('welcome');
